@@ -1,11 +1,14 @@
+import 'package:bytecraft_checkin/consts.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer';
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
-
+import 'package:http/http.dart' as http;
 import 'package:bytecraft_checkin/config/config.dart';
 import 'package:bytecraft_checkin/views/components/components.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:bytecraft_checkin/models/user.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -20,6 +23,21 @@ class _HomeScreenState extends State<HomeScreen> {
   QRViewController? controller;
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
 
+  //current user
+  User? _user = null;
+  //fetching User
+  Future<void> fetchUser()async{
+    // + '/${result!.code}'
+    print(urlUser);
+    final response = await http.get(Uri.parse(urlUser));
+
+    if(response.statusCode ==200) {
+      final data = jsonDecode(response.body);
+      setState(() {
+        _user = User.fromJson(data[0]);
+      });
+    }
+  }
   // In order to get hot reload to work we need to pause the camera if the platform
   // is android, or resume the camera if the platform is iOS.
   @override
@@ -144,14 +162,17 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void _onQRViewCreated(QRViewController controller) {
+  void _onQRViewCreated(QRViewController controller) async {
     setState(() {
       this.controller = controller;
     });
-    controller.scannedDataStream.listen((scanData) {
+    controller.scannedDataStream.listen((scanData) async {
       setState(() {
         result = scanData;
       });
+      await fetchUser();
+      //for testing only
+      print(_user?.familyname);
     });
   }
 
