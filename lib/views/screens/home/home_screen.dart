@@ -1,3 +1,4 @@
+import 'package:bytecraft_checkin/config/colors.dart';
 import 'package:bytecraft_checkin/consts.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer';
@@ -25,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   //current user
   User? _user = null;
+  bool _isUserFound = false;
   //fetching User
   Future<void> fetchUser()async{
     // + '/${result!.code}'
@@ -35,6 +37,12 @@ class _HomeScreenState extends State<HomeScreen> {
       final data = jsonDecode(response.body);
       setState(() {
         _user = User.fromJson(data[0]);
+        _isUserFound = true;
+      });
+    }else{
+      //user not found
+      setState(() {
+        _isUserFound = false;
       });
     }
   }
@@ -62,11 +70,15 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  if (result != null)
-                    Text(
-                        '${_user!.firstname} ${_user!.familyname}')
-                  else
-                    const Text('Scan a code'),
+                  Container(
+                    margin: EdgeInsets.all(10),
+                    color: (result != null)? (_isUserFound)? AppColors.green:AppColors.red :Theme.of(context).bannerTheme.backgroundColor,
+                    child: (result != null)?
+                              (_isUserFound)? Text('${_user!.firstname} ${_user!.familyname}')
+                                  :Text('Participant not found!')
+                            :
+                              const Text('Scan a code'),
+                  ),
                 ],
               ),
             ),
