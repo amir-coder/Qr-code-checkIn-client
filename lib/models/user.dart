@@ -1,10 +1,12 @@
 class User{
-  final String? firstname;
-  final String? familyname;
-  final String? email;
-  final bool? checkedIn;
+  final String id;
+  final String firstname;
+  final String familyname;
+  final String email;
+  final bool checkedIn;
 
   User({
+    required this.id,
     required this.firstname, 
     required this.familyname, 
     required this.email, 
@@ -13,6 +15,7 @@ class User{
 
 factory User.fromJson(Map<String, dynamic> json){
   return User(
+    id: json['_id'],
     firstname: json['firstname'], 
     familyname: json['familyname'], 
     email: json['email'], 

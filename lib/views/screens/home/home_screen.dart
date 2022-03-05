@@ -25,8 +25,11 @@ class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
 
   //current user
-  User? _user = null;
+  User _user = User(id: '', firstname: 'firstname', familyname: 'familyname', email: 'email', checkedIn: false);
   bool _isUserFound = false;
+
+  //list of users
+  final Map<String, User> _users = {};
   //fetching User
   Future<void> fetchUser()async{
     // + '/${result!.code}'
@@ -38,6 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _user = User.fromJson(data[0]);
         _isUserFound = true;
+        _users.putIfAbsent(_user.id, () => _user);
       });
     }else{
       //user not found
@@ -60,6 +64,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Ideatech CheckIn'),
+        centerTitle: true,
+        
+      ),
+      drawer: SideDrawer(usersInstance: _users,),
       body: Column(
         children: <Widget>[
           Expanded(flex: 4, child: _buildQrView(context)),
@@ -74,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     margin: EdgeInsets.all(10),
                     color: (result != null)? (_isUserFound)? AppColors.green:AppColors.red :Theme.of(context).bannerTheme.backgroundColor,
                     child: (result != null)?
-                              (_isUserFound)? Text('${_user!.firstname} ${_user!.familyname}')
+                              (_isUserFound)? Text('${_user.firstname} ${_user.familyname}')
                                   :Text('Participant not found!')
                             :
                               const Text('Scan a code'),
@@ -119,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
       });
       await fetchUser();
       //for testing only
-      print(_user?.familyname);
+      print(_user.familyname);
     });
   }
 
